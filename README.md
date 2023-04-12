@@ -18,3 +18,5 @@ The code block test should be the only one failing.
 ## Todo
 
 - [ ] change it so \[\[text\]\] inside a code block (with the triple backticks) doesn't get converted to a link
+- [ ] create an optional setting: check the `date` yaml key in each post to see if it's today's date or earlier, otherwise it won't copy over
+- [ ] be able to add obsidian folders to check for images, and if a local image link is found in a post, copy over the image to Hugo and update the image link
