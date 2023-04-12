@@ -3,8 +3,10 @@ from shutil import rmtree
 import re
 import glob as g
 import os
+import frontmatter
 
 markdown_files = []
+number_of_posts_copied_over = 0
 
 def remove_exists_hugo_posts():
     try:
@@ -39,12 +41,24 @@ def replace_links_in_files_and_copy_files_to_hugo():
         with open(file_path, 'r') as file:
             filedata = file.read()
 
+        # load the yaml frontmatter
+        yaml = frontmatter.loads(filedata)
+        
+        # check if blog post is still a draft, if it is skip over it and don't copy it over
+        try:
+            if yaml["draft"] is True:
+                continue
+        except KeyError:
+            print("ERROR: " + file_path + " doesn't have 'draft' yaml key, file not copied over")
+            continue
+
         # Replace the target string
         filedata = replace_links(filedata)
 
         # Write the file out again
         with open(config.hugo_posts_path + "/" + os.path.basename(file_path), 'w') as file:
             file.write(filedata)
+            number_of_posts_copied_over += 1
 
 remove_exists_hugo_posts()
 
@@ -52,3 +66,5 @@ find_all_markdown_files_in_obsidian()
 # print(markdown_files)
 
 replace_links_in_files_and_copy_files_to_hugo()
+
+print("Number of posts successfully copied over to Hugo: " + str(number_of_posts_copied_over))
