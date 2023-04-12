@@ -17,4 +17,4 @@ The code block test should be the only one failing.
 
 ## Todo
 
-- [ ] change it so \[\[\]\] inside a code block (with the triple backticks) doesn't get converted to a link
+- [ ] change it so \[\[text\]\] inside a code block (with the triple backticks) doesn't get converted to a link
