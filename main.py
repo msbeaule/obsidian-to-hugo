@@ -15,8 +15,11 @@ class Obsidian_to_Hugo:
         try:
             rmtree(config.hugo_posts_path)
         except: pass
+    
+    def recreate_hugo_folders(self):
         # adds the folder back as it's deleted above
         os.makedirs(config.hugo_posts_path)
+        os.makedirs(config.hugo_drafts_path)
 
     def find_all_markdown_files_in_obsidian(self):
         for folder in config.obsidian_blog_folders:
@@ -38,6 +41,11 @@ class Obsidian_to_Hugo:
     def replace_links(self, filedata) -> str:
         return re.sub(r"(\[\[.+?\]\])", self._replace_links_with_hugo_syntax, filedata)
 
+    def _copy_draft_over_to_hugo(self, filedata, file_path):
+        with open(config.hugo_drafts_path + "/" + os.path.basename(file_path), 'w') as file:
+            file.write(filedata)
+            self.number_of_posts_copied_over += 1
+
     def replace_links_in_files_and_copy_files_to_hugo(self):
         for file_path in self.markdown_files:
             # Read in the file
@@ -46,17 +54,17 @@ class Obsidian_to_Hugo:
 
             # load the yaml frontmatter
             yaml = frontmatter.loads(filedata)
-            
-            # check if blog post is still a draft, if it is skip over it and don't copy it over
-            try:
-                if yaml["draft"] is True:
-                    continue
-            except KeyError:
-                print("ERROR: " + file_path + " doesn't have 'draft' yaml key, file not copied over")
-                continue
 
             # Replace the target string
             filedata = self.replace_links(filedata)
+            
+            try:
+                # check if blog post is still a draft, if it is, move it into draft folder in Hugo
+                if yaml["draft"] is True:
+                    self._copy_draft_over_to_hugo(filedata, file_path)
+                    continue
+            except KeyError:
+                print("WARNING: post doesn't have 'draft' frontmatter key, post treated as published by Hugo: " + file_path)
 
             # Write the file out again
             with open(config.hugo_posts_path + "/" + os.path.basename(file_path), 'w') as file:
@@ -66,6 +74,8 @@ class Obsidian_to_Hugo:
 obsidian_to_hugo = Obsidian_to_Hugo()
 
 obsidian_to_hugo.remove_existing_hugo_posts()
+
+obsidian_to_hugo.recreate_hugo_folders()
 
 obsidian_to_hugo.find_all_markdown_files_in_obsidian()
 
