@@ -50,7 +50,7 @@ class Obsidian_to_Hugo:
     def _is_post_a_draft(self, filedata) -> PostStatus:
             # load the yaml frontmatter
             yaml = frontmatter.loads(filedata)
-            print(yaml.keys())
+            #print(yaml.keys())
 
             try:
                 if yaml["draft"]:
