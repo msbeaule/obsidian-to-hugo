@@ -12,4 +12,5 @@ import pytest
 ])
 
 def test_the_link_replacer(test_input, expected):
-    assert expected == main.replace_links(test_input)
+    obsidian_to_hugo = main.Obsidian_to_Hugo()
+    assert expected == obsidian_to_hugo.replace_links(test_input)
