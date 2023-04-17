@@ -4,6 +4,12 @@ import re
 import glob as g
 import os
 import frontmatter
+from enum import Enum
+
+class PostStatus(Enum):
+    IS_DRAFT = 1
+    IS_NOT_DRAFT = 2
+    DRAFT_YAML_KEY_DOESNT_EXIST = -1
 
 class Obsidian_to_Hugo:
 
@@ -41,6 +47,16 @@ class Obsidian_to_Hugo:
     def replace_links(self, filedata) -> str:
         return re.sub(r"(\[\[.+?\]\])", self._replace_links_with_hugo_syntax, filedata)
 
+    def _is_post_a_draft(self, filedata) -> PostStatus:
+            # load the yaml frontmatter
+            yaml = frontmatter.loads(filedata)
+
+            try:
+                if yaml["draft"]:
+                    return PostStatus.IS_DRAFT
+            except KeyError:
+                return PostStatus.DRAFT_YAML_KEY_DOESNT_EXIST
+
     def _copy_draft_over_to_hugo(self, filedata, file_path):
         with open(config.hugo_drafts_path + "/" + os.path.basename(file_path), 'w') as file:
             file.write(filedata)
@@ -52,18 +68,17 @@ class Obsidian_to_Hugo:
             with open(file_path, 'r') as file:
                 filedata = file.read()
 
-            # load the yaml frontmatter
-            yaml = frontmatter.loads(filedata)
-
             # Replace the target string
             filedata = self.replace_links(filedata)
-            
-            try:
+
+            draft_status = self._is_post_a_draft(filedata)
+
+            if draft_status == PostStatus.IS_DRAFT:
                 # check if blog post is still a draft, if it is, move it into draft folder in Hugo
-                if yaml["draft"] is True:
-                    self._copy_draft_over_to_hugo(filedata, file_path)
-                    continue
-            except KeyError:
+                self._copy_draft_over_to_hugo(filedata, file_path)
+                continue
+
+            if draft_status == PostStatus.DRAFT_YAML_KEY_DOESNT_EXIST:
                 print("WARNING: post doesn't have 'draft' frontmatter key, post treated as published by Hugo: " + file_path)
 
             # Write the file out again
