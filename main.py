@@ -50,12 +50,15 @@ class Obsidian_to_Hugo:
     def _is_post_a_draft(self, filedata) -> PostStatus:
             # load the yaml frontmatter
             yaml = frontmatter.loads(filedata)
+            print(yaml.keys())
 
             try:
                 if yaml["draft"]:
                     return PostStatus.IS_DRAFT
             except KeyError:
                 return PostStatus.DRAFT_YAML_KEY_DOESNT_EXIST
+            
+            return PostStatus.IS_NOT_DRAFT
 
     def _copy_draft_over_to_hugo(self, filedata, file_path):
         with open(config.hugo_drafts_path + "/" + os.path.basename(file_path), 'w') as file:
@@ -86,14 +89,15 @@ class Obsidian_to_Hugo:
                 file.write(filedata)
                 self.number_of_posts_copied_over += 1
 
-obsidian_to_hugo = Obsidian_to_Hugo()
+if __name__ == "__main__":
+    obsidian_to_hugo = Obsidian_to_Hugo()
 
-obsidian_to_hugo.remove_existing_hugo_posts()
+    obsidian_to_hugo.remove_existing_hugo_posts()
 
-obsidian_to_hugo.recreate_hugo_folders()
+    obsidian_to_hugo.recreate_hugo_folders()
 
-obsidian_to_hugo.find_all_markdown_files_in_obsidian()
+    obsidian_to_hugo.find_all_markdown_files_in_obsidian()
 
-obsidian_to_hugo.replace_links_in_files_and_copy_files_to_hugo()
+    obsidian_to_hugo.replace_links_in_files_and_copy_files_to_hugo()
 
-print("Number of posts successfully copied over to Hugo: " + str(obsidian_to_hugo.number_of_posts_copied_over))
+    print("Number of posts successfully copied over to Hugo: " + str(obsidian_to_hugo.number_of_posts_copied_over))
