@@ -48,17 +48,17 @@ class Obsidian_to_Hugo:
         return re.sub(r"(\[\[.+?\]\])", self._replace_links_with_hugo_syntax, filedata)
 
     def _is_post_a_draft(self, filedata) -> PostStatus:
-            # load the yaml frontmatter
-            yaml = frontmatter.loads(filedata)
-            #print(yaml.keys())
+        # load the yaml frontmatter
+        yaml = frontmatter.loads(filedata)
+        # print(yaml.keys())
 
-            try:
-                if yaml["draft"]:
-                    return PostStatus.IS_DRAFT
-            except KeyError:
-                return PostStatus.DRAFT_YAML_KEY_DOESNT_EXIST
-            
-            return PostStatus.IS_NOT_DRAFT
+        try:
+            if yaml["draft"]:
+                return PostStatus.IS_DRAFT
+        except KeyError:
+            return PostStatus.DRAFT_YAML_KEY_DOESNT_EXIST
+        
+        return PostStatus.IS_NOT_DRAFT
 
     def _copy_draft_over_to_hugo(self, filedata, file_path):
         with open(config.hugo_drafts_path + "/" + os.path.basename(file_path), 'w') as file:
