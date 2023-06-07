@@ -1,6 +1,6 @@
 import config
 from shutil import rmtree
-import re, os, sys, time
+import re, os, sys, time, datetime
 import glob as g
 import frontmatter
 from enum import Enum
@@ -112,7 +112,7 @@ if __name__ == "__main__":
 
     obsidian_to_hugo.replace_links_in_files_and_copy_files_to_hugo(markdown_files)
 
-    print("Number of posts successfully copied over to Hugo: " + str(obsidian_to_hugo.number_of_posts_copied_over))
+    print(f'Posts successfully copied over to Hugo: {str(obsidian_to_hugo.number_of_posts_copied_over)}')
     sys.stdout.flush() # so print() works on git bash
 
     if args.watch:
@@ -127,6 +127,7 @@ if __name__ == "__main__":
             obsidian_to_hugo.number_of_posts_copied_over = 0
 
             markdown_files = obsidian_to_hugo.find_all_markdown_files_in_obsidian()
+            time_checked = datetime.datetime.now().strftime("%H:%M:%S")
 
             modified_markdown_files = []
 
@@ -138,7 +139,7 @@ if __name__ == "__main__":
             if len(modified_markdown_files) > 0:
                 obsidian_to_hugo.replace_links_in_files_and_copy_files_to_hugo(modified_markdown_files)
 
-                print("Number of posts successfully copied over to Hugo: " + str(obsidian_to_hugo.number_of_posts_copied_over))
+                print(f'{time_checked} | {str(obsidian_to_hugo.number_of_posts_copied_over)} post(s) copied over to Hugo')
                 sys.stdout.flush() # so print() works on git bash
 
 
