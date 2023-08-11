@@ -62,15 +62,19 @@ class Obsidian_to_Hugo:
         return PostStatus.IS_NOT_DRAFT
 
     def _copy_draft_over_to_hugo(self, filedata, file_path):
-        with open(config.hugo_drafts_path + "/" + os.path.basename(file_path), 'w') as file:
+        with open(config.hugo_drafts_path + "/" + os.path.basename(file_path), 'w', encoding="utf-8") as file:
             file.write(filedata)
             self.number_of_posts_copied_over += 1
 
     def replace_links_in_files_and_copy_files_to_hugo(self, markdown_files):
         for file_path in markdown_files:
             # Read in the file
-            with open(file_path, 'r') as file:
-                filedata = file.read()
+            with open(file_path, 'r', encoding="utf-8") as file:
+                try:
+                    filedata = file.read()
+                except UnicodeDecodeError:
+                    print("can't decode a byte, please fix it in this file: " + file_path)
+                    exit()
 
             # Replace the target string
             filedata = self._replace_links(filedata)
@@ -87,7 +91,7 @@ class Obsidian_to_Hugo:
                 sys.stdout.flush() # so print() works on git bash
 
             # Write the file out again
-            with open(config.hugo_posts_path + "/" + os.path.basename(file_path), 'w') as file:
+            with open(config.hugo_posts_path + "/" + os.path.basename(file_path), 'w', encoding="utf-8") as file:
                 file.write(filedata)
                 self.number_of_posts_copied_over += 1
 
